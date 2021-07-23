@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import br.com.alura.spring.data.orm.Cargo;
@@ -27,17 +31,16 @@ public class CrudFuncionarioService {
 	private final UnidadeTrabalhoRepository unidadeTrabalhoRepository;
 	
 	
-	public CrudFuncionarioService(CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository,
-			UnidadeTrabalhoRepository unidadeTrabalhoRepository) {
+	public CrudFuncionarioService(FuncionarioRepository funcionarioRepository, 
+			CargoRepository cargoRepository, UnidadeTrabalhoRepository unidadeTrabalhoRepository) {
 		this.cargoRepository = cargoRepository;
 		this.funcionarioRepository = funcionarioRepository;
 		this.unidadeTrabalhoRepository = unidadeTrabalhoRepository;
 	}
 	
-	
 	public void inicial(Scanner scanner) {
 		while(system) {
-			System.out.println("Qual ação de cargo deseja executar");
+			System.out.println("Qual acao de funcionario deseja executar");
 			System.out.println("0 - Sair");
 			System.out.println("1 - Salvar");
 			System.out.println("2 - Atualizar");
@@ -52,104 +55,114 @@ public class CrudFuncionarioService {
 				break;
 			case 2:
 				atualizar(scanner);
+				break;
 			case 3:
-				visualizar();
+				visualizar(scanner);
+				break;
 			case 4:
 				deletar(scanner);
+				break;
 			default:
 				system = false;
 				break;
 			}
+			
 		}
-	}
-	
-	private void atualizar(Scanner scanner) {
-		System.out.println("Digite o id");
-		Integer id = scanner.nextInt();
-		
-		System.out.println("Digite o nome");
-		String nome = scanner.next();
-		
-		System.out.println("Digite o cpf");
-		String cpf = scanner.next();
-		
-		System.out.println("Digite o salario");
-		Double salario = scanner.nextDouble();
-		
-		System.out.println("Digite a data de contratação");
-		String dataContratacao = scanner.next();
-		
-		System.out.println("Digite o cargoId");
-		Integer cargoId = scanner.nextInt();
-		
-		Funcionario funcionario = new Funcionario();
-		funcionario.setNome(nome);
-		funcionario.setCpf(cpf);
-		funcionario.setSalario(salario);
-		funcionario.setDataContratacao(LocalDate.parse(dataContratacao, formatter));
-		Optional<Cargo> cargo = cargoRepository.findById(cargoId);
-		funcionario.setCargo(cargo.get());
-		
-		funcionarioRepository.save(funcionario);
-		System.out.println("Alterado");
-		
 		
 	}
 	
 	private void salvar(Scanner scanner) {
 		System.out.println("Digite o nome");
-		String nome = scanner.next();
-		
-		System.out.println("Digite o cpf");
-		String cpf = scanner.next();
-		
-		System.out.println("Digite o salario");
-		Double salario = scanner.nextDouble();
-		
-		System.out.println("Digite a data de contratacao");
-		String dataContratacao = scanner.next();
-		
-		System.out.println("Digite o cargoId");
-		Integer cargoId = scanner.nextInt();
-		
-		List<UnidadeTrabalho> unidades = unidade(scanner);
-		
-		Funcionario funcionario = new Funcionario();
-		funcionario.setNome(nome);
-		funcionario.setCpf(cpf);
-		funcionario.setSalario(salario);
-		funcionario.setDataContratacao(LocalDate.parse(dataContratacao, formatter));
-		Optional<Cargo> cargo = cargoRepository.findById(cargoId);
-		funcionario.setCargo(cargo.get());
-		funcionario.setUnidadeTrabalhos(unidades);
-		
-		funcionarioRepository.save(funcionario);
-		
-		System.out.println("Salvo");
+        String nome = scanner.next();
+
+        System.out.println("Digite o cpf");
+        String cpf = scanner.next();
+
+        System.out.println("Digite o salario");
+        Double salario = scanner.nextDouble();
+
+        System.out.println("Digite a data de contracao");
+        String dataContratacao = scanner.next();
+
+        System.out.println("Digite o cargoId");
+        Integer cargoId = scanner.nextInt();
+
+        List<UnidadeTrabalho> unidades = unidade(scanner);
+
+        Funcionario funcionario = new Funcionario();
+        funcionario.setNome(nome);
+        funcionario.setCpf(cpf);
+        funcionario.setSalario(salario);
+        funcionario.setDataContratacao(LocalDate.parse(dataContratacao, formatter));
+        Optional<Cargo> cargo = cargoRepository.findById(cargoId);
+        funcionario.setCargo(cargo.get());
+        funcionario.setUnidadeTrabalhos(unidades);
+
+        funcionarioRepository.save(funcionario);
+        System.out.println("Salvo");
 	}
 	
+	private List<UnidadeTrabalho> unidade(Scanner scanner) {
+        Boolean isTrue = true;
+        List<UnidadeTrabalho> unidades = new ArrayList<>();
+
+        while (isTrue) {
+            System.out.println("Digite o unidadeId (Para sair digite 0)");
+            Integer unidadeId = scanner.nextInt();
+
+            if(unidadeId != 0) {
+                Optional<UnidadeTrabalho> unidade = unidadeTrabalhoRepository.findById(unidadeId);
+                unidades.add(unidade.get());
+            } else {
+                isTrue = false;
+            }
+        }
+
+        return unidades;
+    }
 	
-	private List<UnidadeTrabalho> unidade(Scanner scanner){
-		Boolean isTrue = true;
-		List<UnidadeTrabalho> unidades = new ArrayList<>();
-		
-		while(isTrue) {
-			System.out.println("Digite o unidadeId(Para sair digite 0)");
-			Integer unidadeId = scanner.nextInt();
-			
-			if(unidadeId !=0) {
-				Optional<UnidadeTrabalho> unidade = unidadeTrabalhoRepository.findById(unidadeId);
-				unidades.add(unidade.get());
-			}
-			else {
-				isTrue = false;
-			}
-		}
-		return unidades;
+	private void atualizar(Scanner scanner) {
+		System.out.println("Digite o id");
+        Integer id = scanner.nextInt();
+
+        System.out.println("Digite o nome");
+        String nome = scanner.next();
+
+        System.out.println("Digite o cpf");
+        String cpf = scanner.next();
+
+        System.out.println("Digite o salario");
+        Double salario = scanner.nextDouble();
+
+        System.out.println("Digite a data de contracao");
+        String dataContratacao = scanner.next();
+
+        System.out.println("Digite o cargoId");
+        Integer cargoId = scanner.nextInt();
+
+        Funcionario funcionario = new Funcionario();
+        funcionario.setId(id);
+        funcionario.setNome(nome);
+        funcionario.setCpf(cpf);
+        funcionario.setSalario(salario);
+        funcionario.setDataContratacao(LocalDate.parse(dataContratacao, formatter));
+        Optional<Cargo> cargo = cargoRepository.findById(cargoId);
+        funcionario.setCargo(cargo.get());
+
+        funcionarioRepository.save(funcionario);
+        System.out.println("Alterado");
 	}
 	
-	private void visualizar() {
-		Iterable<Funcionario> funcionarios = funcionarioRepository.findAll();
+	private void visualizar(Scanner scanner) {
+		System.out.println("Qual pagina voce deseja visualizar");
+		Integer page = scanner.nextInt();
+		
+		Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.ASC, "nome"));
+		Page<Funcionario> funcionarios = funcionarioRepository.findAll(pageable);
+		
+		System.out.println(funcionarios);
+		System.out.println("Pagina atual " + funcionarios.getNumber());
+		System.out.println("Total elemento " + funcionarios.getTotalElements());
 		funcionarios.forEach(funcionario -> System.out.println(funcionario));
 	}
 	
@@ -159,9 +172,5 @@ public class CrudFuncionarioService {
 		funcionarioRepository.deleteById(id);
 		System.out.println("Deletado");
 	}
-	
-	
-	
-	
 	
 }

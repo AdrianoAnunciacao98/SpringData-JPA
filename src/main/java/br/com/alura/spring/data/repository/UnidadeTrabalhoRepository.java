@@ -8,5 +8,4 @@ import br.com.alura.spring.data.orm.UnidadeTrabalho;
 @Repository
 public interface UnidadeTrabalhoRepository extends CrudRepository<UnidadeTrabalho, Integer> {
 
-	
 }
